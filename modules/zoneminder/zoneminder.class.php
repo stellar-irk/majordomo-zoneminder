@@ -161,7 +161,7 @@ class zoneminder extends module {
             $monitor = $this->fetchMonitor($this->monitor);
             $out["monitor"] = $this->monitor;
             $out["name"] = $monitor->Monitor->Name;
-            if (isset($this->showeventlist)) {
+            if (isset($this->showeventlist) && $this->showeventlist == 1) {
                 $events = $this->fetchEvents($this->monitor, 'day', 1);
                 foreach ($events->events as $event) {
                     $event->Event->Length = $this->secondsToHMS((int)$event->Event->Length);
@@ -458,7 +458,14 @@ class zoneminder extends module {
             $url_path = $this->config['SERVER_PROTO'].'://'.$this->config['SERVER_ADDRESS'].'/zm/api/events/index/MonitorId:'.$monitorId.'/StartDateTime>=:'.date("Y-m-d H:i:s", strtotime($dateRange)).'/EndDateTime<=:'.date("Y-m-d H:i:s").'.json?sort=StartDateTime&direction=desc&page='.$page;
             $url_path = str_replace(' ', '%20', $url_path);
             $results = file_get_contents($url_path, false);
-            return json_decode($results);
+            $results_decoded = json_decode($results);
+
+            foreach ($results_decoded->events as $event) {
+                $event->Event->StartDateTime = date("d.m.Y H:i", strtotime($event->Event->StartDateTime));
+                $event->Event->EndDateTime = date("d.m.Y H:i", strtotime($event->Event->EndDateTime));
+            }
+
+            return $results_decoded;
         }
     }
 
