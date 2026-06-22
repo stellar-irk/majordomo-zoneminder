@@ -45,7 +45,7 @@
         background-color: white;
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
     }
 </style>
 <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
@@ -94,7 +94,7 @@
     <!--<div><pre>[#DEBUG#]</pre></div>-->
 </div>
 <div class="eventViewer" style="display: none;">
-    <div onclick="$('.eventViewer').hide();">
+    <div onclick="$('.eventViewer').hide();" style="position: fixed; right: 1vw;">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24.000000" height="24.000000" fill="none">
             <rect id="close" width="24.000000" height="24.000000" x="0.000000" y="0.000000" />
             <path id="Icon" d="M18.41 5.59002C19.1967 6.37672 19.1967 7.65221 18.41 8.4389L15.205 11.6439C15.0083 11.8406 15.0083 12.1594 15.205 12.3561L18.41 15.5611C19.1967 16.3478 19.1967 17.6233 18.41 18.41C17.6233 19.1967 16.3478 19.1967 15.5611 18.41L12.3561 15.205C12.1594 15.0083 11.8406 15.0083 11.6439 15.205L8.4389 18.41C7.6522 19.1967 6.37672 19.1967 5.59002 18.41C4.80333 17.6233 4.80333 16.3478 5.59002 15.5611L8.79501 12.3561C8.99169 12.1594 8.99169 11.8406 8.79501 11.6439L5.59002 8.4389C4.80333 7.6522 4.80333 6.37672 5.59002 5.59002C6.37672 4.80333 7.65221 4.80333 8.4389 5.59002L11.6439 8.79501C11.8406 8.99169 12.1594 8.99169 12.3561 8.79501L15.5611 5.59002C16.3478 4.80333 17.6233 4.80333 18.41 5.59002Z" fill-rule="nonzero" stroke="rgb(66,66,66)" stroke-width="2" />
