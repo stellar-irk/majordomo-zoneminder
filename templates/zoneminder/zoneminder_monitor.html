@@ -50,7 +50,7 @@
 </style>
 <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
     <h3>[#name#]</h3>
-    <div style="width: 100%;"><img id="videoStream" src="/camera.php?id=[#monitor#]&scale=[#scale#]" data-src="/camera.php?id=[#monitor#]&scale=[#scale#]" style="width: 100%;"></div>
+    <div style="border: 1px solid #EAEAEA; border-radius: 10px; padding: 5px;"><img id="videoStream" src="/camera.php?id=[#monitor#]&scale=[#scale#]" data-src="/camera.php?id=[#monitor#]&scale=[#scale#]" style="height: 40vw;"></div>
     <div style="display: flex; flex-direction: row; gap: 8px;">
         <div class="zm-button zm-enabled" onclick="zm_play(this);">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24.000000" height="24.000000" fill="none">
@@ -66,22 +66,30 @@
         </div>
     </div>
     [#if EVENTS#]
-    <div style="display: grid;">
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_ID#></div>
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_NAME#></div>
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_START_TIME#></div>
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_END_TIME#></div>
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_ID#></div>
-        <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_DURATION#></div>
-        [#begin EVENTS#]
-        <div class="zm-grid-element">[#Id#]</div>
-        <div class="zm-grid-element"><a href="#" onclick="zm_playEvent([#Id#], [#Videoed#])">[#Name#]</a></div>
-        <div class="zm-grid-element">[#StartDateTime#]</div>
-        <div class="zm-grid-element">[#EndDateTime#]</div>
-        <div class="zm-grid-element">[#Length#]</div>
-        <div class="zm-grid-element"><img src="/camera.php?source=thumbnail&eid=[#Id#]&width=96&height=54" width="96" height="54"></div>
-        [#end EVENTS#]
-    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr class="zm-bold">
+                <th><#LANG_ZONEMINDER_COLUMN_ID#></th>
+                <th><#LANG_ZONEMINDER_COLUMN_NAME#></th>
+                <th><#LANG_ZONEMINDER_COLUMN_START_TIME#></th>
+                <th><#LANG_ZONEMINDER_COLUMN_END_TIME#></th>
+                <th><#LANG_ZONEMINDER_COLUMN_DURATION#></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            [#begin EVENTS#]
+            <tr>
+                <td>[#Id#]</td>
+                <td><a href="#" onclick="zm_playEvent([#Id#], [#Videoed#])">[#Name#]</a></td>
+                <td>[#StartDateTime#]</td>
+                <td>[#EndDateTime#]</td>
+                <td>[#Length#]</td>
+                <td><img src="/camera.php?source=thumbnail&eid=[#Id#]&width=96&height=54" width="96" height="54"></td>
+            </tr>
+            [#end EVENTS#]
+        </tbody>
+    </table>
     [#endif EVENTS#]
     <!--<div><pre>[#DEBUG#]</pre></div>-->
 </div>
