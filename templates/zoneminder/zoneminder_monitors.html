@@ -37,12 +37,14 @@
   [#begin MONITORS#]
     <div class="zm-grid-element">[#Id#]</div>
     <div class="zm-grid-element">
-      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
         <div><img src="/camera.php?scale=3&id=[#Id#]" width="48" height="27"></div>
-        <div style="display: flex; flex-direction: row; align-items: center; gap: 16px;">
-          <div style="width: 14px; height: 14px; border-radius: 7px; background: [#monitor_color#];"></div>
-          <a style="font-weight: 600;" href="?view_mode=monitor&monitor=[#Id#]">[#Name#]</a>
-          <div data-toggle="modal" data-target="#editMonitor" style="cursor: pointer;" onclick="fillUpdateForm([#Id#], '[#Name#]');"><i class="glyphicon glyphicon-edit"></i></div>
+        <div style="display: flex; flex-direction: row; align-items: center; gap: 16px; width: 100%; justify-content: space-between;">
+          <div style="display: flex; flex-direction: row; align-items: center; align-content: flex-start; gap: 4px;">
+            <div style="width: 14px; height: 14px; border-radius: 7px; background: [#monitor_color#];"></div>
+            <a style="font-weight: 600;" href="?view_mode=monitor&monitor=[#Id#]">[#Name#]</a>
+          </div>
+          <div data-toggle="modal" data-target="#editMonitor" style="cursor: pointer;" onclick="fillUpdateForm([#Id#], '[#Name#]');" title="Rename"><i class="glyphicon glyphicon-edit"></i></div>
         </div>
       </div>
     </div>

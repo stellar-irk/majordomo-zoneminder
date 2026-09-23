@@ -302,12 +302,6 @@ class zoneminder extends module {
                 $out['EVENTS'][] = convertStdClassToArray($event->Event);
             }
         }
-
-        if ($this->view_mode == 'test') {
-            $this->test();
-            //$this->redirect('?');
-        }
-
     }
 
     /**
@@ -339,12 +333,36 @@ class zoneminder extends module {
 
     /**
      *
-     * Тестовая функция
+     * API функция
      *
      */
-    function test()
+    function api($params)
     {
-        echo "<pre>".print_r(SQLSelectOne('select `MONITOR_NAME_OVERRIDE` from `zoneminder` where `ID`=2 and `MONITOR_NAME_OVERRIDE` is not null'), true)."</pre>";
+        $zm_monitor_states = [
+            1 => 'idle',
+            2 => 'prealarm',
+            3 => 'alarm',
+            4 => 'alert'];
+
+        $api_action = $params['request'][0];
+        if (isset($api_action)) {
+            switch ($api_action) {
+                case 'eventnotify':
+                    $data = json_decode($params['data']);
+                    $rec['ID'] = $data->monitorid;
+                    $rec['STATE'] = $zm_monitor_states[$data->monitorState];
+                    if ($data->monitorState == 4) $rec['LAST_ALERT_DT'] = date("Y-m-d H:i:s");
+                    if ($data->monitorEventId != -1) $rec['LAST_ALERT_EVENT_ID'] = $data->monitorEventId;
+                    $rec['MODIFIED_ON'] = date("Y-m-d H:i:s");
+                    SQLUpdate('zoneminder', $rec);
+                    //DebMes(print_r($data, true), 'zoneminder');
+                    break;
+                //case
+            }
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -517,6 +535,10 @@ class zoneminder extends module {
    zoneminder: ID int NOT NULL PRIMARY KEY
    zoneminder: MONITOR_NAME varchar(4000) NOT NULL
    zoneminder: MONITOR_NAME_OVERRIDE varchar(4000) NULL
+   zoneminder: STATE varchar(45) NULL
+   zoneminder: LAST_ALERT_DT datetime NULL
+   zoneminder: LAST_ALERT_EVENT_ID int NULL
+   zoneminder: MODIFIED_ON datetime NULL
 EOD;
         parent::dbInstall($data);
     }
