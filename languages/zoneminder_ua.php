@@ -43,6 +43,8 @@ $dictionary=array(
                Проект в <a href="https://github.com/layet/majordomo-zoneminder" target="_blank">Github</a>.<br>
                Проект в <a href="https://connect.smartliving.ru/tasks/923.html" target="_blank">Connect</a>.<br>
                Канал в <a href="https://t.me/mjdm_zoneminder" target="_blank">Telegram</a>.<br>',
+    'ZONEMINDER_SCRIPT_WELL'=>'Якщо на сервері <b>Zoneminder</b> налаштований скрипт <b>zm_eventnotify.pl</b>, то можна прив\'язати властивість або метод змінити статус тривоги нижче.<br />
+            Докладніше про налаштування скрипта дивись у довідці.'
 );
 
 foreach ($dictionary as $k=>$v) {

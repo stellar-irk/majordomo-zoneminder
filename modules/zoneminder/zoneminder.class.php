@@ -86,6 +86,9 @@ class zoneminder extends module {
         global $interval;
         global $showeventlist;
         global $scale;
+        global $linked_object;
+        global $linked_property;
+        global $linked_method;
         if (isset($id)) {
             $this->id=$id;
         }
@@ -118,6 +121,15 @@ class zoneminder extends module {
         }
         if (isset($scale)) {
             $this->scale=$scale;
+        }
+        if (isset($linked_object)) {
+            $this->linkedobject=$linked_object;
+        }
+        if (isset($linked_property)) {
+            $this->linkedproperty=$linked_property;
+        }
+        if (isset($linked_method)) {
+            $this->linkedmethod=$linked_method;
         }
     }
     /**
@@ -222,7 +234,7 @@ class zoneminder extends module {
             foreach ($info as $monitor) {
                 $id = $monitor->Monitor->Id;
                 $url_path = $this->config['SERVER_PROTO'].'://'.$this->config['SERVER_ADDRESS'].'/zm/api/monitors/daemonStatus/id:'.$id.'/daemon:zmc.json';
-                $monitor->Monitor->monitor_color = json_decode(file_get_contents($url_path, false))->status == 1 ? '#33CA7F' : '#FE5F55';
+                $monitor->Monitor->monitor_color = $monitor->Monitor_Status->CaptureBandwidth == 0 ? 'red' : 'green';
                 $monitor->Monitor->CaptureFPS = $monitor->Monitor_Status->CaptureFPS;
                 $monitor->Monitor->CaptureBandwidth = sprintf("%03.2f ".LANG_ZONEMINDER_BANDWIDTH_KBS, $monitor->Monitor_Status->CaptureBandwidth / 1000);
                 $pattern="/(\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3})/";
@@ -285,7 +297,10 @@ class zoneminder extends module {
 
         if ($this->view_mode == 'update_monitor_name') {
             $dbitem['ID'] = DBSafe($this->monitor);
-            $dbitem['MONITOR_NAME_OVERRIDE'] = DBSafe($this->monitorname);
+            if ($this->monitorname != '') $dbitem['MONITOR_NAME_OVERRIDE'] = DBSafe($this->monitorname);
+            $dbitem['LINKED_OBJECT'] = DBSafe($this->linkedobject);
+            $dbitem['LINKED_PROPERTY'] = DBSafe($this->linkedproperty);
+            $dbitem['LINKED_METHOD'] = DBSafe($this->linkedmetnod);
             SQLUpdate('zoneminder', $dbitem);
             $this->redirect('?');
         }
@@ -357,7 +372,15 @@ class zoneminder extends module {
                     SQLUpdate('zoneminder', $rec);
                     //DebMes(print_r($data, true), 'zoneminder');
                     break;
-                //case
+                case 'states':
+                    $mon_id = $params['request'][1];
+                     if (isset($mon_id) and is_numeric($mon_id)) {
+                         $sql = "select `ID`, `STATE`, `LAST_ALERT_DT`, `LAST_ALERT_EVENT_ID` from `zoneminder` where `ID` = ".$mon_id;
+                     } else {
+                         $sql = "select `ID`, `STATE`, `LAST_ALERT_DT`, `LAST_ALERT_EVENT_ID` from `zoneminder`";
+                     }
+                     return SQLSelect($sql);
+                    break;
             }
             return 1;
         } else {
@@ -432,10 +455,13 @@ class zoneminder extends module {
                 $exists = SQLSelectOne('select 1 from `zoneminder` where `ID`='.$monitor->Monitor->Id);
                 if($exists) SQLExec('update `zoneminder` set `MONITOR_NAME`="'.$monitor->Monitor->Name.'" where `ID`='.$monitor->Monitor->Id);
                     else SQLExec('insert into `zoneminder` (`ID`, `MONITOR_NAME`) values ('.$monitor->Monitor->Id.', "'.$monitor->Monitor->Name.'")');
-                //SQLExec('insert into `zoneminder` (`ID`, `MONITOR_NAME`) values ('.$monitor->Monitor->Id.', "'.$monitor->Monitor->Name.'") on duplicate key update set `MONITOR_NAME`="'.$monitor->Monitor->Name.'"');
 
                 $name_override = SQLSelectOne('select `MONITOR_NAME_OVERRIDE` from `zoneminder` where `ID`='.$monitor->Monitor->Id.' and `MONITOR_NAME_OVERRIDE` is not null');
-                if ($name_override) $monitor->Monitor->Name = $name_override['MONITOR_NAME_OVERRIDE'];
+                $res = SQLSelectOne('select * from `zoneminder` where `ID`='.$monitor->Monitor->Id);
+                if (isset($res['MONITOR_NAME_OVERRIDE'])) $monitor->Monitor->Name = $res['MONITOR_NAME_OVERRIDE'];
+                $monitor->Monitor->LinkedObject = $res['LINKED_OBJECT'];
+                $monitor->Monitor->LinkedProperty = $res['LINKED_PROPERTY'];
+                $monitor->Monitor->LinkedMethod = $res['LINKED_METHOD'];
             }
             return $monitors;
         }
@@ -538,6 +564,9 @@ class zoneminder extends module {
    zoneminder: STATE varchar(45) NULL
    zoneminder: LAST_ALERT_DT datetime NULL
    zoneminder: LAST_ALERT_EVENT_ID int NULL
+   zoneminder: LINKED_OBJECT varchar(1000) NULL
+   zoneminder: LINKED_PROPERTY varchar(1000) NULL
+   zoneminder: LINKED_METHOD varchar(1000) NULL
    zoneminder: MODIFIED_ON datetime NULL
 EOD;
         parent::dbInstall($data);

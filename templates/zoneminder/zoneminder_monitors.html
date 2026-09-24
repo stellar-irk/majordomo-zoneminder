@@ -1,8 +1,27 @@
 <script type="text/javascript">
-  function fillUpdateForm(id, name) {
+  function fillUpdateForm(id, name, linkedobject, linkedproperty, linkedmethod) {
     $("#editMonitorForm > div > div > input[name='monitorname']").val(name);
     $("#editMonitorForm > div > div > input[name='monitor']").val(id);
+    //$("select[name='linked_object']").val(linkedobject);
+    $("#linked_property").val(linkedproperty);
+    $("#linked_method").val(linkedmethod);
+    console.log(linkedobject);
   }
+
+  function updateStates () {
+    $.getJSON("/api/module/zoneminder/states")
+      .done(function(response) {
+        $.each(response.apiHandleResult, function(index, state) {
+          if (state.STATE == 'alert' || state.STATE == 'alarm') {
+            $("#zm-alert-cam" + state.ID).css("display", "block");
+          } else {
+            $("#zm-alert-cam" + state.ID).css("display", "none");
+          }
+        });
+      });
+  }
+
+  setInterval(updateStates, 2000);
 </script>
 <style>
   div[style="display: grid;"] {
@@ -23,7 +42,33 @@
   .zm-bold {
     font-weight: bold;
   }
+
+  .zm-table {
+    border-collapse: collapse;
+    /*border-spacing: 0px;
+    border: solid 1px #D4D4D4;*/
+    width: 100%;
+  }
+
+  .zm-table > thead > tr > th, .zm-table > tbody > tr > td {
+    border: solid 1px #D4D4D4;
+    color: #333;
+    padding: 3px;
+  }
+
+  .zm-status-green {
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(%23clip0_697_5020)"><path d="M16.125 8.36671C15.5583 5.49171 13.0333 3.33337 10 3.33337C7.59167 3.33337 5.5 4.70004 4.45833 6.70004C1.95 6.96671 0 9.09171 0 11.6667C0 14.425 2.24167 16.6667 5 16.6667H15.8333C18.1333 16.6667 20 14.8 20 12.5C20 10.3 18.2917 8.51671 16.125 8.36671ZM8.33333 14.1667L5.41667 11.25L6.59167 10.075L8.33333 11.8084L12.65 7.50004L13.825 8.67504L8.33333 14.1667Z" fill="%235EA63A"/></g><defs><clipPath id="clip0_697_5020"><rect width="20" height="20" fill="white"/></clipPath></defs></svg>');
+  }
+
+  .zm-status-red {
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(%23clip0_697_5026)"><path d="M16.125 8.36671C15.5583 5.49171 13.0333 3.33337 10 3.33337C7.59167 3.33337 5.5 4.70004 4.45833 6.70004C1.95 6.96671 0 9.09171 0 11.6667C0 14.425 2.24167 16.6667 5 16.6667H15.8333C18.1333 16.6667 20 14.8 20 12.5C20 10.3 18.2917 8.51671 16.125 8.36671Z" fill="%23EC4A53"/><path d="M12.0979 13.9544C12.381 14.2374 12.8383 14.2374 13.1214 13.9544C13.3972 13.6713 13.3972 13.2068 13.1214 12.931L11.0237 10.8333L13.1214 8.73571C13.4044 8.45264 13.4044 7.99537 13.1214 7.7123C12.8383 7.42923 12.381 7.42923 12.0979 7.7123L10.0003 9.80993L7.9027 7.7123C7.61963 7.42923 7.16237 7.42923 6.87929 7.7123C6.59622 7.99537 6.59622 8.45264 6.87929 8.73571L8.97692 10.8333L6.87929 12.931C6.59622 13.214 6.59622 13.6713 6.87929 13.9544C7.16237 14.2374 7.61963 14.2374 7.9027 13.9544L10.0003 11.8567L12.0979 13.9544Z" fill="white"/></g><defs><clipPath id="clip0_697_5026"><rect width="20" height="20" fill="white"/></clipPath></defs></svg>');
+  }
 </style>
+<!--
 <div style="display: grid;">
   <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_ID#></div>
   <div class="zm-bold zm-grid-element"><#LANG_ZONEMINDER_COLUMN_NAME#></div>
@@ -33,7 +78,6 @@
   <div class="zm-bold zm-grid-element" style="text-align: center"><#LANG_ZONEMINDER_COLUMN_DAY#></div>
   <div class="zm-bold zm-grid-element" style="text-align: center"><#LANG_ZONEMINDER_COLUMN_WEEK#></div>
   <div class="zm-bold zm-grid-element" style="text-align: center"><#LANG_ZONEMINDER_COLUMN_MONTH#></div>
-  <!--<div class="zm-bold" style="text-align: center"><#LANG_ZONEMINDER_COLUMN_ENABLED#></div>-->
   [#begin MONITORS#]
     <div class="zm-grid-element">[#Id#]</div>
     <div class="zm-grid-element">
@@ -79,100 +123,125 @@
         <span style="font-size: 0.8em;">[#MonthEventDiskSpace#]</span>
       </div>
     </div>
-    <!--<div style="text-align: center"><input type="checkbox" [#if Enabled="1"#]checked[#endif#] onclick="return false;"></div>-->
   [#end MONITORS#]
-</div>
-<!--
-<table align=center class="table table-hover table-condensed table-responsive" style="margin-top: 1em;">
+</div>-->
+
+<table class="zm-table" style="margin-top: 1em;">
   <thead>
   <tr>
-    <th><#LANG_ZONEMINDER_COLUMN_ID#></th>
+    <th style="width: 20px;"><#LANG_ZONEMINDER_COLUMN_ID#></th>
+    <th style="width: 55px;"></th>
     <th><#LANG_ZONEMINDER_COLUMN_NAME#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_FUNCTION#></th>
-    <th><#LANG_ZONEMINDER_COLUMN_SOURCE#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_HOUR#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_DAY#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_WEEK#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_MONTH#></th>
-    <th style="text-align: center"><#LANG_ZONEMINDER_COLUMN_ENABLED#></th>
+    <th style="text-align: center; width: 125px;"><#LANG_ZONEMINDER_COLUMN_FUNCTION#></th>
+    <th style="width: 125px;"><#LANG_ZONEMINDER_COLUMN_SOURCE#></th>
+    <th style="text-align: center; width: 60px;"><#LANG_ZONEMINDER_COLUMN_HOUR#></th>
+    <th style="text-align: center; width: 60px;"><#LANG_ZONEMINDER_COLUMN_DAY#></th>
+    <th style="text-align: center; width: 60px;"><#LANG_ZONEMINDER_COLUMN_WEEK#></th>
+    <th style="text-align: center; width: 60px;"><#LANG_ZONEMINDER_COLUMN_MONTH#></th>
+    <th style="text-align: center; width: 40px;"></th>
   </tr>
   </thead>
   <tbody>
 
   [#begin MONITORS#]
   <tr>
-    <td>[#Id#]</td>
+    <td style="width: 20px;">[#Id#]</td>
+    <td style="width: 55px;"><img src="/camera.php?scale=3&id=[#Id#]" width="48" height="27" /></td>
     <td>
-      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
-        <div><img src="/camera.php?scale=3&id=[#Id#]" width="48" height="27"></div>
-        <div style="display: flex; flex-direction: row; align-items: center; gap: 16px;">
-          <div style="width: 14px; height: 14px; border-radius: 7px; background: [#monitor_color#];"></div>
+      <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+        <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+          <span class="zm-status-[#monitor_color#]"></span>
           <a style="font-weight: 600;" href="?view_mode=monitor&monitor=[#Id#]">[#Name#]</a>
-          <div data-toggle="modal" data-target="#editMonitor" style="cursor: pointer;" onclick="fillUpdateForm([#Id#], '[#Name#]');"><i class="glyphicon glyphicon-edit"></i></div>
         </div>
+        <svg style="display: none;" id="zm-alert-cam[#Id#]" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.0003 1.66669C5.40033 1.66669 1.66699 5.40002 1.66699 10C1.66699 14.6 5.40033 18.3334 10.0003 18.3334C14.6003 18.3334 18.3337 14.6 18.3337 10C18.3337 5.40002 14.6003 1.66669 10.0003 1.66669Z" fill="#EC4A53"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.17394 5.41669C9.05597 5.41669 8.96153 5.51456 8.96574 5.63245L9.15915 11.0491C9.16315 11.1612 9.25518 11.25 9.36735 11.25H10.632C10.7441 11.25 10.8362 11.1612 10.8402 11.0491L11.0336 5.63246C11.0378 5.51456 10.9434 5.41669 10.8254 5.41669H9.17394ZM9.99967 14.375C10.575 14.375 11.0413 13.9087 11.0413 13.3334C11.0413 12.7581 10.575 12.2917 9.99967 12.2917C9.42438 12.2917 8.95801 12.7581 8.95801 13.3334C8.95801 13.9087 9.42438 14.375 9.99967 14.375Z" fill="white"/>
+        </svg>
       </div>
     </td>
-    <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+    <td style="text-align: center; width: 125px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch; ">
         <span style="font-weight: 600;">[#Function#]</span>
         <span style="font-size: 0.8em;">[#CaptureFPS#] fps&nbsp;[#CaptureBandwidth#]</span>
       </div>
     </td>
-    <td>[#IP#]</td>
-    <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+    <td style="width: 125px;">[#IP#]</td>
+    <td style="text-align: center; width: 60px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span><a href="?view_mode=events&monitor=[#Id#]&mode=hour&monitorname=[#Name#]">[#HourEvents#]</a></span>
         <span style="font-size: 0.8em;">[#HourEventDiskSpace#]</span>
       </div>
     </td>
-    <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+    <td style="text-align: center; width: 60px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span><a href="?view_mode=events&monitor=[#Id#]&mode=day&monitorname=[#Name#]">[#DayEvents#]</a></span>
         <span style="font-size: 0.8em;">[#DayEventDiskSpace#]</span>
       </div>
     </td>
-    <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+    <td style="text-align: center; width: 60px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span><a href="?view_mode=events&monitor=[#Id#]&mode=week&monitorname=[#Name#]">[#WeekEvents#]</a></span>
         <span style="font-size: 0.8em;">[#WeekEventDiskSpace#]</span>
       </div>
     </td>
-    <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+    <td style="text-align: center; width: 60px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span><a href="?view_mode=events&monitor=[#Id#]&mode=month&monitorname=[#Name#]">[#MonthEvents#]</a></span>
         <span style="font-size: 0.8em;">[#MonthEventDiskSpace#]</span>
       </div>
     </td>
-    <td style="text-align: center"><input type="checkbox" [#if Enabled="1"#]checked[#endif#] onclick="return false;"></td>
+    <td style="text-align: center; width: 40px;">
+      <div data-toggle="modal" data-target="#editMonitor" style="cursor: pointer;" onclick="fillUpdateForm([#Id#], '[#Name#]', '[#LinkedObject#]', '[#LinkedProperty#]', '[#LinkedMethod#]');">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.8929 3.17765C15.0368 3.02686 15.2527 2.95893 15.4484 3.03075C16.4004 3.38021 17.285 3.86889 18.076 4.47441C18.257 4.61303 18.3078 4.85899 18.2313 5.07379C18.0816 5.49361 18 5.94578 18 6.41699C18 8.4262 19.4815 10.0895 21.4117 10.3741C21.6376 10.4075 21.831 10.5684 21.8679 10.7938C21.9545 11.3221 22 11.8643 22 12.417C22 12.9694 21.9544 13.5111 21.8679 14.0391C21.831 14.2645 21.6376 14.4255 21.4116 14.4589C19.4815 14.7436 18 16.4078 18 18.417C18 18.8879 18.0817 19.3397 18.2313 19.7593C18.3079 19.974 18.2571 20.2199 18.0761 20.3585C17.4577 20.8319 16.7822 21.2336 16.0621 21.5538C15.821 21.661 15.5451 21.5459 15.4066 21.3212C14.7025 20.1788 13.4405 19.417 12 19.417C10.5594 19.417 9.29666 20.1786 8.59244 21.3211C8.45396 21.5458 8.178 21.6609 7.93684 21.5537C7.21676 21.2336 6.54124 20.8319 5.92297 20.3586C5.74193 20.22 5.69114 19.974 5.76786 19.7593C5.91778 19.3398 6 18.8881 6 18.417C5.99999 16.4074 4.51822 14.743 2.58756 14.4588C2.36151 14.4255 2.16799 14.2644 2.13118 14.039C2.04498 13.511 2 12.9693 2 12.417C2 11.8644 2.04491 11.3222 2.13116 10.794C2.16798 10.5685 2.36149 10.4075 2.58751 10.3742C4.51818 10.0901 6 8.42659 6 6.41699C6 5.94561 5.91791 5.49357 5.76793 5.07375C5.6912 4.859 5.74198 4.61301 5.92307 4.47438C6.714 3.86889 7.59859 3.38031 8.55055 3.03081C8.74625 2.95896 8.96221 3.02692 9.10612 3.17776C9.83448 3.94115 10.8616 4.41694 12 4.41699C13.1382 4.41699 14.1647 3.94088 14.8929 3.17765Z" fill="url(#paint0_linear_693_2869)"/>
+          <ellipse cx="12" cy="12.4171" rx="5" ry="5" fill="url(#paint1_linear_693_2869)"/>
+          <circle cx="12" cy="12.4169" r="3" fill="url(#paint2_linear_693_2869)"/>
+          <defs>
+            <linearGradient id="paint0_linear_693_2869" x1="12" y1="3.00201" x2="12" y2="21.5943" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#9DA3A8"/>
+              <stop offset="1" stop-color="#5B5F63"/>
+            </linearGradient>
+            <linearGradient id="paint1_linear_693_2869" x1="12" y1="7.41711" x2="12" y2="17.4171" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white"/>
+              <stop offset="1" stop-color="#D0D4D7"/>
+            </linearGradient>
+            <linearGradient id="paint2_linear_693_2869" x1="12" y1="9.41693" x2="12" y2="15.4169" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#9DA3A8"/>
+              <stop offset="1" stop-color="#6B7073"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+    </td>
   </tr>
   [#end MONITORS#]
   <tr>
-    <td><#LANG_ZONEMINDER_TOTAL#>: [#TOTAL.count#]</td>
-    <td></td>
+    <td colspan="3"><#LANG_ZONEMINDER_TOTAL#>: [#TOTAL.count#]</td>
     <td style="text-align: center">
       [#TOTAL.bandwidth#]
     </td>
     <td></td>
     <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span>[#TOTAL.HourEvents#]</span>
         <span style="font-size: 0.8em;">[#TOTAL.HourEventDiskSpace#]</span>
       </div>
     </td>
     <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span>[#TOTAL.DayEvents#]</span>
         <span style="font-size: 0.8em;">[#TOTAL.DayEventDiskSpace#]</span>
       </div>
     </td>
     <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span>[#TOTAL.WeekEvents#]</span>
         <span style="font-size: 0.8em;">[#TOTAL.WeekEventDiskSpace#]</span>
       </div>
     </td>
     <td style="text-align: center">
-      <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+      <div style="display: flex; flex-direction: column; align-items: stretch;">
         <span>[#TOTAL.MonthEvents#]</span>
         <span style="font-size: 0.8em;">[#TOTAL.MonthEventDiskSpace#]</span>
       </div>
@@ -181,17 +250,41 @@
   </tr>
   </tbody>
 </table>
--->
+
 <div class="modal fade" id="editMonitor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="editMonitorForm" method="post" action="?">
         <div class="modal-body">
           <div class="form-group">
+            <label><#LANG_ZONEMINDER_COLUMN_NAME#>:</label>
             <input type="text" class="form-control" name="monitorname" value="" />
             <input type="hidden" name="monitor" value="" />
             <input type="hidden" name="view_mode" value="update_monitor_name" />
           </div>
+          <div class="well"><#LANG_ZONEMINDER_SCRIPT_WELL#></div>
+          <!-- LINKED_OBJECT (varchar) -->
+          <div class="form-group">
+            <label for="linked_object" class="control-label">
+              <#LANG_LINKED_OBJECT#>:
+            </label>
+            <input id="linked_object" name="linked_object" value="" type="text" class="form-control">
+          </div>
+          <!-- LINKED_PROPERTY (varchar) -->
+          <div class="form-group">
+            <label for="linked_property" class="control-label">
+              <#LANG_LINKED_PROPERTY#>:
+            </label>
+            <input id="linked_property" name="linked_property" value="" type="text" class="form-control">
+          </div>
+          <!-- LINKED_METHOD (varchar) -->
+          <div class="form-group">
+            <label for="linked_method" class="control-label">
+              <#LANG_METHOD#>:
+            </label>
+            <input id="linked_method" name="linked_method" value="" type="text" class="form-control">
+          </div>
+          [#module name="linkedobject" object_field="linked_object" property_field="linked_property" method_field="linked_method"#]
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary"><#LANG_UPDATE#></button>
